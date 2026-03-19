@@ -90,7 +90,12 @@ def pool_multiply(A, B, num_processes):
     #          result[i][j] = val
 
     # --- Ваш код здесь ---
+    args = [(i, j, A, B) for i in range(rows) for j in range(cols)]
+    with Pool(processes=num_processes) as pool:
+        results_list = pool.starmap(element, args)
 
+    for i, j, val in results_list:
+        result[i][j] = val
     # --- Конец вашего кода ---
 
     return result
@@ -102,9 +107,9 @@ if __name__ == '__main__':
     print(f"Доступно ядер CPU: {cpu_count}\n")
 
     # Последовательное вычисление
-    t = time.time()
+    t = time.perf_counter()
     seq_result = sequential_multiply(matrix_a, matrix_b)
-    time_seq = time.time() - t
+    time_seq = time.perf_counter() - t
     print(f"Последовательно: {time_seq:.4f} сек")
 
     # TODO 4: Запустите pool_multiply с разным числом процессов (1, 2, 4)
@@ -121,5 +126,10 @@ if __name__ == '__main__':
     #   assert par_result == seq_result, "Результаты не совпадают!"
 
     # --- Ваш код здесь ---
-
+    for n in [1, 2, 4]:
+        t = time.perf_counter()
+        par_result = pool_multiply(matrix_a, matrix_b, n)
+        elapsed = time.perf_counter() - t
+        assert par_result == seq_result, "Результаты не совпадают!"
+        print(f"Pool ({n} процессов): {elapsed:.4f} сек")
     # --- Конец вашего кода ---

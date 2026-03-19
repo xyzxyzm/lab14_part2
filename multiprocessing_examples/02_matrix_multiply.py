@@ -117,13 +117,17 @@ def parallel_multiply(A, B):
     #           p.start()
 
     # --- Ваш код здесь ---
-
+    for i in range(rows):
+        for j in range(cols):
+            p = Process(target=element_to_queue, args=((i, j), A, B, q))
+            processes.append(p)
+            p.start()
     # --- Конец вашего кода ---
 
     for p in processes:
         p.join()
 
-    while not q.empty():
+    for _ in range(rows * cols):
         (i, j), value = q.get()
         result[i][j] = value
 
@@ -140,9 +144,9 @@ if __name__ == '__main__':
     print()
 
     # Последовательное вычисление
-    t1 = time.time()
+    t1 = time.perf_counter()
     result_seq = sequential_multiply(matrix_a, matrix_b)
-    time_seq = time.time() - t1
+    time_seq = time.perf_counter() - t1
 
     print("Результат (последовательно):")
     for row in result_seq:
@@ -163,5 +167,14 @@ if __name__ == '__main__':
     #   print(f"Ускорение: {time_seq / time_par:.2f}x")
 
     # --- Ваш код здесь ---
+    t2 = time.perf_counter()
+    result_par = parallel_multiply(matrix_a, matrix_b)
+    time_par = time.perf_counter() - t2
 
+    print("Результат (параллельно):")
+    for row in result_par:
+        print(f"  {row}")
+    print(f"Время: {time_par:.6f} сек\n")
+
+    print(f"Ускорение: {time_seq / time_par:.2f}x")
     # --- Конец вашего кода ---
